@@ -1,62 +1,74 @@
 import java.util.*;
 
 class Solution {
-    int[] lion;
+    PriorityQueue<int[]> pq;
+    
     int[] answer;
-    int gap = 0;
+    
+    int scoreGap = 0;
     public int[] solution(int n, int[] info) {
-        answer = new int[]{-1};
+        answer = new int[info.length];
         
-        lion = new int[info.length];
+        pq = new PriorityQueue<int[]>((x, y) -> {
+            for (int i = info.length - 1; i >= 0; i--) {
+                if (x[i] != y[i]) return y[i] - x[i];
+            }
+            return 0;
+        });
         
         dfs(n, info, 0);
-        return answer;
+        
+        if (pq.isEmpty()) {
+            return new int[]{-1};
+        } else {
+            return pq.poll();
+        }
     }
     
-    private void dfs(int n, int[] info, int idx) {
-        if (idx == info.length) {
-            int apeachScore = 0;
-            int lionScore = 0;
+    private void dfs(int n, int[] info, int depth) {
+        if (depth == info.length) {
             
-            for (int i = 0; i < info.length; i++) {
-                if (info[i] != 0 && info[i] >= lion[i]) {
-                    apeachScore += 10 - i;
-                } else if (lion[i] != 0 && lion[i] > info[i]) {
-                    lionScore += 10 - i;
-                }
-            }
-            
-            if (lionScore > apeachScore && lionScore - apeachScore == gap) {
-                gap = lionScore - apeachScore;
-                if (answer.length != 1) {
-                
-                    for (int i = lion.length - 1; i >= 0; i--) {
-                        if (lion[i] > answer[i]) {
-                            answer = Arrays.copyOf(lion, lion.length);
-                            break;
-                        } else if (lion[i] < answer[i]) {
-                            break;
-                        }
-                    }
-                } else {
-                    answer = Arrays.copyOf(lion, lion.length);
-                }
-            } else if (lionScore > apeachScore && lionScore - apeachScore > gap) {
-                gap = lionScore - apeachScore;
-                answer = Arrays.copyOf(lion, lion.length);
+            if (isLionWin(info, answer)) {
+                pq.offer(answer.clone());
             }
             return;
         }
         
-        if (info[idx] < n) {
-            lion[idx] = info[idx] + 1;
-            dfs(n - lion[idx], info, idx + 1);
+        if (n > info[depth]) {
+            answer[depth] = info[depth] + 1;
+            dfs(n - answer[depth], info, depth + 1);
         }
         
-        lion[idx] = 0;
-        if (idx == info.length - 1 && n > 0) {
-            lion[idx] = n;    
+        answer[depth] = 0;
+        if (depth == info.length - 1 && n > 0) {
+                answer[depth] = n;
+            }
+        dfs(n - answer[depth], info, depth + 1);
+    }
+    
+    private boolean isLionWin(int[] apeach, int[] lion) {
+        int apeachScore = 0;
+        int lionScore = 0;
+        for (int i = 0; i < apeach.length; i++) {
+            if (apeach[i] == 0 && lion[i] == 0) {
+                continue;
+            }
+            
+            if (apeach[i] >= lion[i]) {
+                apeachScore += (10 - i);
+            } else {
+                lionScore += (10 - i);
+            }
         }
-        dfs(n - lion[idx], info, idx + 1);
+        
+        if (lionScore > apeachScore && (lionScore - apeachScore) >= scoreGap) {
+            if (lionScore - apeachScore > scoreGap) {
+                pq.clear();
+                scoreGap = lionScore - apeachScore;
+            }
+            return true;
+        } 
+        
+        return false;
     }
 }
