@@ -2,43 +2,41 @@ import java.util.*;
 
 class Solution {
     boolean[] visited;
-    int dfsResult = 0;
+    List<Integer> score = new ArrayList<>();
+    int[] board;
     public int solution(int[] cards) {
         int answer = 0;
-        visited = new boolean[cards.length];
         
-        List<Integer> list = new ArrayList<>();
+        visited = new boolean[cards.length];
+        board = cards;
         
         for (int i = 0; i < cards.length; i++) {
             if (!visited[i]) {
                 visited[i] = true;
-                dfs(cards, i, 0);
-                list.add(dfsResult);
+                dfs(i, 0);
             }
         }
         
-        list.sort((x, y) -> y - x);
-        
-        if (list.size() == 1) {
+        if (score.size() == 1) {
             return 0;
+        } else {
+            score.sort((x, y) -> y - x);
+            answer = score.get(0) * score.get(1);
         }
         
-        answer = list.get(0) * list.get(1);
-
         return answer;
     }
     
-    private void dfs(int[] cards, int index, int count) {    
-        int nextIdx = cards[index] - 1;
-        
-        if (visited[nextIdx]) {
-            dfsResult = count + 1;
+    private void dfs(int idx, int count) {
+        if (visited[board[idx] - 1]) {
+            score.add(count + 1);
             return;
-        }
+        } 
         
-        if (!visited[nextIdx]) {
-            visited[nextIdx] = true;
-            dfs(cards, nextIdx, count + 1);
+        if (!visited[board[idx] - 1]) {
+            visited[board[idx] - 1] = true;
+            int newCount = count + 1;
+            dfs(board[idx] - 1, newCount);
         }
     }
 }
