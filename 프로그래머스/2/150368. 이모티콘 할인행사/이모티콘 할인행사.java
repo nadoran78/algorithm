@@ -1,52 +1,61 @@
+import java.util.*;
+
 class Solution {
-    int[] applyDiscount;
-    int[] answer;
     int[] discount;
+    int join = 0;
+    int sales = 0;
     public int[] solution(int[][] users, int[] emoticons) {
-        answer = new int[2];
         
-        discount = new int[]{10, 20, 30, 40};
-        
-        applyDiscount = new int[emoticons.length];
-        
+        discount = new int[emoticons.length];
         
         dfs(users, emoticons, 0);
+        
+        int[] answer = new int[]{join, sales};
         
         return answer;
     }
     
-    private void dfs(int[][] users, int[] emoticons, int idx) {
-        if (idx == emoticons.length) {
-            int plusJoin = 0;
-            int total = 0;
-            for (int[] user : users) {
-                int sum = 0;
-                for (int i = 0; i < emoticons.length; i++) {
-                    if (applyDiscount[i] >= user[0]) {
-                        sum += emoticons[i] * (100 - applyDiscount[i]) / 100;
-                    }
-                }
-                
-                if (sum >= user[1]) {
-                    plusJoin++;
-                } else {
-                    total += sum;
-                }
-                
-            }
-            
-            if (plusJoin > answer[0]) {
-                answer[0] = plusJoin;
-                answer[1] = total;
-            } else if (plusJoin == answer[0] && total > answer[1]) {
-                answer[1] = total;
-            }
+    private void dfs(int[][] users, int[] emoticons, int depth) {
+        if (depth == emoticons.length) {
+            joinCount(users, emoticons);
             return;
         }
         
-        for (int i = 0; i < discount.length; i++) {
-            applyDiscount[idx] = discount[i];
-            dfs(users, emoticons, idx + 1);
+        for (int i = 10; i <= 40; i += 10) {
+            discount[depth] = i;
+            dfs(users, emoticons, depth + 1);
+        }
+        
+    }
+    
+    private void joinCount(int[][] users, int[] emoticons) {
+        int tempJoin = 0;
+        int tempSales = 0;
+        
+        for (int i = 0; i < users.length; i++) {
+            int userDiscount = users[i][0];
+            int userAmount = users[i][1];
+            int amount = 0;
+            for (int j = 0; j < discount.length; j++) {
+                if (discount[j] >= userDiscount) {
+                    amount += emoticons[j] * (100 - discount[j]) / 100;
+                }
+            }
+            
+            if (amount >= userAmount) {
+                tempJoin++;
+            } else {
+                tempSales += amount;
+            }
+        }
+        
+        if (tempJoin > join) {
+            join = tempJoin;
+            sales = tempSales;
+        } else if (tempJoin == join) {
+            if (tempSales > sales) {
+                sales = tempSales;
+            }
         }
     }
 }
