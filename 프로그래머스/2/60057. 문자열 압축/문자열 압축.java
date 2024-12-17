@@ -1,44 +1,49 @@
+import java.util.*;
+
 class Solution {
     public int solution(String s) {
         int answer = s.length();
         
         for (int i = 1; i <= s.length() / 2; i++) {
-            String base = s.substring(0, i);
+            String repeat = s.substring(0, i);
             
-            int left = i;
-            int right = Math.min(left + i, s.length());
+            int idx = i;
             int count = 1;
             StringBuilder sb = new StringBuilder();
             
-            while (left < s.length()) {
-                String compare = s.substring(left, right);
-                
-                if (base.equals(compare)) {
-                    count++;
+            while (idx < s.length()) {
+                String check;
+                if (idx + i <= s.length()) {
+                    check = s.substring(idx, idx + i);
                 } else {
-                    if (count >= 2) {
-                        sb.append(count);
-                    }
-                    sb.append(base);
-                    base = compare;
-                    count = 1;
+                    check = s.substring(idx);
                 }
                 
-                left += i;
-                right = Math.min(right + i, s.length());
+                if (repeat.equals(check)) {
+                    count++;
+                } else {
+                    if (count != 1) {
+                        sb.append(count).append(repeat);    
+                    } else {
+                        sb.append(repeat);
+                    }
+                    
+                    count = 1;
+                    repeat = check;
+                }
+                
+                idx += i;
             }
-        
             
-            if (count >= 2) {
-                sb.append(count);
+            if (count != 1) {
+                sb.append(count).append(repeat);
+            } else {
+                sb.append(repeat);
             }
-            sb.append(base);
             
             answer = Math.min(answer, sb.length());
-            
         }
         
         return answer;
     }
-    
 }
